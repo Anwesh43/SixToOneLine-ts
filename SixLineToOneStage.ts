@@ -173,3 +173,24 @@ class SixLineToOne {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+    slo : SixLineToOne = new SixLineToOne()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.slo.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.slo.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.slo.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
