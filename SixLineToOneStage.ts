@@ -34,3 +34,35 @@ class SixLineToOneStage {
         stage.handleTap()
     }
 }
+
+const getScaleFactor : Function = (scale : number) : number => {
+    return Math.floor(scale / 0.51)
+}
+
+const updateScale : Function = (scale : number, dir : number) : number => {
+    const k : number = getScaleFactor(scale)
+    return ((1 - k) / lines + k) * dir * 0.05
+}
+class State {
+    prevScale : number = 0
+    dir : number = 0
+    scale : number = 0
+
+    update(cb : Function) {
+        const k : number = updateScale(this.scale, this.dir)
+        this.scale += k
+        if (Math.abs(this.scale - this.prevScale) > 1) {
+            this.scale = this.prevScale + this.dir
+            this.dir = 0
+            this.prevScale = this.scale
+            cb()
+        }
+    }
+
+    startUpdating(cb : Function) {
+        if (this.dir == 0) {
+            this.dir = 1 - 2 * this.prevScale
+            cb()
+        }
+    }
+}
