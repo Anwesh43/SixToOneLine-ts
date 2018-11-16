@@ -85,3 +85,68 @@ class Animator {
         }
     }
 }
+const divideScale : Function = (scale : number, i : number, n : number) => Math.min(1/n, Math.max(0, scale - i * 1/n)) * n
+
+const getDeg : Function = (o : number, s : number, scale : number) : number => o + (s - o) * scale
+
+class SLONode {
+    prev : SLONode
+    next : SLONode
+    state : State = new State()
+
+    constructor(private i : number) {
+        this.addNeighbor()
+    }
+
+    addNeighbor() {
+        if (this.i < nodes - 1) {
+            this.next = new SLONode(this.i + 1)
+            this.next.prev = this
+        }
+    }
+
+    draw(context : CanvasRenderingContext2D) {
+        const gap : number = w / (nodes + 1)
+        const sc1 : number = divideScale(this.state.scale, 0, 2)
+        const sc2 : number = divideScale(this.state.scale, 1, 2)
+        const size : number = gap / SIZE_FACTOR
+        const deg : number = 2 * Math.PI / (lines)
+        context.lineWidth = Math.min(w, h) / STROKE_FACTOR
+        context.lineCap = 'round'
+        context.strokeStyle = '#01579B'
+        context.save()
+        context.translate(gap * (this.i + 1), h/2)
+        for (var i = 0; i < lines; i++) {
+            const sc : number = divideScale(sc1, i, lines)
+            const currDeg : number = getDeg(deg * i, 2 * Math.PI, sc2)
+            context.save()
+            context.rotate(currDeg)
+            context.beginPath()
+            context.moveTo(0, 0)
+            context.lineTo(size * sc, 0)
+            context.stroke()
+            context.restore()
+        }
+        context.restore()
+    }
+
+    update(cb : Function) {
+        this.state.update(cb)
+    }
+
+    startUpdating(cb : Function) {
+        this.state.startUpdating(cb)
+    }
+
+    getNext(dir : number, cb : Function) : SLONode {
+        var curr : SLONode = this.prev
+        if (dir == 1) {
+            curr = this.next
+        }
+        if (curr) {
+            return curr
+        }
+        cb()
+        return this
+    }
+}
