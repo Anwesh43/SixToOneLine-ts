@@ -132,6 +132,9 @@ class SLONode {
             context.restore()
         }
         context.restore()
+        if (this.prev) {
+            this.prev.draw(context)
+        }
     }
 
     update(cb : Function) {
