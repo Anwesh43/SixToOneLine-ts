@@ -45,7 +45,7 @@ const getScaleFactor : Function = (scale : number) : number => {
 
 const updateScale : Function = (scale : number, dir : number) : number => {
     const k : number = getScaleFactor(scale)
-    return ((1 - k) / lines + k) * dir * 0.05
+    return ((1 - k) / lines + k / lines) * dir * 0.05
 }
 class State {
     prevScale : number = 0
@@ -122,13 +122,16 @@ class SLONode {
         context.translate(gap * (this.i + 1), h/2)
         for (var i = 0; i < lines; i++) {
             const sc : number = divideScale(sc1, i, lines)
-            const currDeg : number = getDeg(deg * i, 2 * Math.PI, sc2)
+            const scx : number = divideScale(sc2, i, lines)
+            const currDeg : number = getDeg(deg * i, 0, scx)
             context.save()
             context.rotate(currDeg)
-            context.beginPath()
-            context.moveTo(0, 0)
-            context.lineTo(size * sc, 0)
-            context.stroke()
+            if (sc > 0) {
+                context.beginPath()
+                context.moveTo(0, 0)
+                context.lineTo(size * sc, 0)
+                context.stroke()
+            }
             context.restore()
         }
         context.restore()
